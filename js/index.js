@@ -68,6 +68,7 @@ function getMusic() {
 								if (!obj.artist) obj.artist = "Unknown Artist";
 								if (!obj.title) obj.title = last(filename.split("/"));
 								if (!obj.album) obj.album = "Unknown Album";
+								array.push(obj);
 							}
 							this.continue();
 						},
