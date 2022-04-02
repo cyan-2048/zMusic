@@ -23,7 +23,8 @@ const wakeLockToggle = (() => {
 	};
 })();
 
-const unix_epoch = () => new Date().getTime();
+const unix_epoch = () => new Date().getTime(),
+	last = (e) => e[e.length - 1];
 function hashCode(r) {
 	var n,
 		t = 0;
@@ -62,13 +63,23 @@ function getMusic() {
 							let obj = a;
 							obj.storage = i;
 							obj.filename = filename;
-							if (obj.title && obj.artist && obj.album) array.push(obj);
+							if (obj.title && obj.artist && obj.album && settings.strictID3) array.push(obj);
+							if (!settings.strictID3) {
+								if (!obj.artist) obj.artist = "Unknown Artist";
+								if (!obj.title) obj.title = last(filename.split("/"));
+								if (!obj.album) obj.album = "Unknown Album";
+							}
 							this.continue();
 						},
 						(e) => {
 							console.error(e);
-							// we skip because i only like id3
-							// array.push({ storage: i, filename });
+							let obj = { storage: i, filename };
+							if (!settings.strictID3) {
+								obj.artist = "Unknown Artist";
+								obj.title = last(filename.split("/"));
+								obj.album = "Unknown Album";
+								array.push(obj);
+							}
 							this.continue();
 						}
 					);
@@ -194,6 +205,18 @@ localforage
 						reloadLibrary();
 					}
 				});
+			}
+		});
+		localforage.getItem("settings").then((a) => {
+			let defSet = {
+				resizeImage: true,
+				strictID3: false,
+			};
+			if (a == null) {
+				localforage.setItem("settings", defSet);
+				settings = defSet;
+			} else {
+				settings = a;
 			}
 		});
 	})

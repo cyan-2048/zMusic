@@ -16,3 +16,18 @@ body {
 :focus {
 	outline: none;
 }
+
+body > [id] {
+	height: calc(100vh - 26px);
+	width: 100vw;
+	position: fixed;
+	top: 26px;
+}
+
+[id] > footer {
+	height: 30px;
+	width: 100vw;
+	position: fixed;
+	bottom: 0;
+	left: 0;
+}
