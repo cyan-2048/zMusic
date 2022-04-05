@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
+		<script src="js/polyfills.js"></script>
 		<meta charset="UTF-8" />
 		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Document</title>
 		<script src="js/localforage.min.js"></script>
 		<script src="js/metadata-audio-parser.js"></script>
+		<script src="js/player.js"></script>
 		<script src="js/index.js" defer></script>
 		<link rel="stylesheet" href="css/style.css" />
 	</head>
@@ -26,6 +28,17 @@
 		<div id="settings">
 			<header></header>
 			<div data-index="0"></div>
+			<footer></footer>
+		</div>
+		<div id="player">
+			<div data-index="0">
+				<div id="player_artist"></div>
+				<div id="player_album"></div>
+				<img id="player_image" alt="album art" />
+				<div id="player_progress"></div>
+				<div id="player_title"></div>
+				<div id="player_queue"></div>
+			</div>
 			<footer></footer>
 		</div>
 	</body>

@@ -11,6 +11,7 @@ body {
 	font-family: "Open Sans", "Arial", "sans-serif";
 	box-sizing: border-box;
 	background-repeat: no-repeat;
+	color: whitesmoke;
 }
 
 :focus {
@@ -30,4 +31,77 @@ body > [id] {
 	position: fixed;
 	bottom: 0;
 	left: 0;
+}
+
+#player > [data-index] > * {
+	white-space: nowrap;
+	width: 100%;
+	text-overflow: ellipsis;
+}
+
+#player_image {
+	width: 170px !important;
+}
+
+#player_progress {
+	width: 170px !important;
+	height: 3px;
+	background-color: rgba(255, 255, 255, 0.2);
+	position: relative;
+	margin-top: -4px;
+	margin-bottom: 2px;
+	font-size: 10px;
+	text-align: right;
+	padding-top: 1px;
+}
+
+#player_progress::after {
+	content: "";
+	height: 100%;
+	width: var(--progress, 0%);
+	left: 0;
+	top: 0;
+	background-color: white;
+	position: absolute;
+}
+
+#player > [data-index],
+#player {
+	position: fixed;
+	width: 100vw;
+	height: 100vh;
+	top: 0;
+	left: 0;
+	padding: 10px;
+	background-position: center center;
+	background-size: cover;
+	padding-top: 24px;
+}
+#player > [data-index] {
+	background-color: rgba(0, 0, 0, 0.7);
+}
+
+#player_queue {
+	font-size: 11px;
+	color: rgba(255, 255, 255, 0.5);
+	line-height: 1.2;
+	font-weight: 600;
+}
+#player_title {
+	line-height: 1.2;
+	font-size: 16px;
+	font-weight: 600;
+}
+
+#player_artist {
+	font-size: 17px;
+	line-height: 1.1;
+	font-weight: 600;
+	margin-bottom: 2px;
+}
+
+#player_album {
+	line-height: 1;
+	font-size: 15px;
+	margin-bottom: 4px;
 }

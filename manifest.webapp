@@ -24,8 +24,20 @@
 		"device-storage:music": {
 			"access": "readonly"
 		},
+		"systemXHR": {
+			"description": "Required to load remote content"
+		},
 		"audio-channel-normal": {},
-		"audio-channel-content": {}
+		"audio-channel-content": {},
+		"volumemanager": {
+			"description": "To control volume manager"
+		},
+		"mobiledata": {
+			"description": "China Type Approval(CTA)"
+		},
+		"wifidata": {
+			"description": "China Type Approval(CTA)"
+		}
 	},
 	"default_locale": "en-US"
 }
