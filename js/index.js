@@ -2,6 +2,7 @@ localforage.setDriver([localforage.INDEXEDDB, localforage.LOCALSTORAGE]);
 
 let cachedImages = {},
 	api_keys = {},
+	history = {},
 	sift = [], // or songs
 	settings = {},
 	genres = [],
@@ -187,32 +188,41 @@ function init() {
 			};
 		});
 
+	console.log(history.time);
+	const init_time = history.time;
+
 	setTimeout(() => {
 		// temp
 		let _player = (e) => document.getElementById("player_" + e);
 		location.hash = "player";
-		player.queue = sift.map((a) => a.id);
+		let queue = history.queue.length != 0 ? history.queue : sift.map((a) => a.id);
+		let index = history.index > 0 && history.index < queue.length ? history.index : 0;
+		player.playlist(queue, index || 0, true);
 		let audio = player.audio;
 		audio.ontimeupdate = function () {
 			if (document.visibilityState == "visible") {
 				let { time, song } = player,
 					prog = _player("progress");
 				prog.setAttribute("style", `--progress:${time.progress}%;`);
-				if (song.title.length < 12) prog.innerText = time.current + " - " + time.remain;
+				if (song.title.length < 11) prog.innerText = time.current + " - " + time.remain;
 			}
 		};
 		player.onplayevent = () => {
-			console.log("onplaying");
 			let { songs, index, picture, song } = player;
 			_player("progress").innerText = "";
 			_player("progress").removeAttribute("style");
 			_player("artist").innerText = song.artist;
 			_player("title").innerText = song.title;
 			_player("album").innerText = song.album;
-			getImage(picture, song.filename).then((a) => (_player("image").src = a));
+			if (!cachedImages["album-" + picture]) {
+				getImage(picture, song.filename).then((a) => (_player("image").className = "album-" + picture));
+			} else {
+				_player("image").className = "album-" + picture;
+			}
+
 			_player("queue").innerText = ((songs[index + 1] || {}).title || "") + "\n" + ((songs[index + 2] || {}).title || "");
 
-			getArtistImage(song.artist)
+			getArtistImage(song.artist.split(", ")[0])
 				.then((a) => {
 					if (player.song.artist == song.artist) {
 						document.getElementById("player").style.backgroundImage = `url(${a})`;
@@ -220,25 +230,97 @@ function init() {
 				})
 				.catch((e) => (document.getElementById("player").style.backgroundImage = `none`));
 		};
-		player.play();
+		setTimeout(() => {
+			audio.currentTime = init_time;
+		}, 500);
 	}, 2000);
+	setInterval((a) => {
+		history.time = player.currentTime;
+	}, 2100);
 	sessionStorage.running = true;
 }
 
-window.onkeydown = (e) => {
-	let { key } = e,
+function keypad_handler(e, type) {
+	const { key } = e,
 		hash = location.hash.replace("#", "");
-	if (hash == "player") {
-		({
-			Enter: () => player.toggle(),
-			ArrowLeft: () => player.playPrevious(),
-			ArrowRight: () => player.playNext(),
-			ArrowUp: () => player.volumeUp(),
-			ArrowDown: () => player.volumeDown(),
-			SoftRight: () => window.close(),
-		}[key]());
+	if (type == "keydown") {
+		if (hash == "player")
+			switch (key) {
+				case "Enter":
+					player.toggle();
+					break;
+				case "ArrowUp":
+					player.volumeUp();
+					break;
+				case "ArrowDown":
+					player.volumeDown();
+					break;
+				case "SoftRight":
+					window.close();
+					break;
+				case "1":
+					player.seek(-1);
+					break;
+				case "3":
+					player.seek(1);
+					break;
+			}
 	}
-};
+	if (type == "short") {
+		if (hash == "player")
+			switch (key) {
+				case "ArrowLeft":
+					player.playPrevious();
+					break;
+				case "ArrowRight":
+					player.playNext();
+					break;
+			}
+	}
+	if (type == "repeat") {
+		if (hash == "player")
+			switch (key) {
+				case "ArrowLeft":
+					player.seek(-1);
+					break;
+				case "ArrowRight":
+					player.seek(1);
+					break;
+			}
+	}
+	if (type == "long") {
+	}
+}
+
+(() => {
+	let longpress = false;
+	const longpress_timespan = 300;
+	let timeout;
+	window.addEventListener("keydown", function handleKeyDown(evt) {
+		if (evt.key === "EndCall") {
+			evt.preventDefault();
+			window.close();
+		}
+		if (!evt.repeat) {
+			longpress = false;
+			timeout = setTimeout(() => {
+				longpress = true;
+				keypad_handler(evt, "long");
+			}, longpress_timespan);
+		}
+		if (evt.repeat) {
+			if (evt.key == "Backspace") longpress = false;
+			keypad_handler(evt, "repeat");
+		}
+	});
+	window.addEventListener("keyup", function handleKeyUp(evt) {
+		clearTimeout(timeout);
+		if (!longpress) {
+			keypad_handler(evt, "short");
+		}
+		keypad_handler(evt, "keydown");
+	});
+})();
 
 // getting artist and genre are too similar
 function getAG(type, name) {
@@ -365,32 +447,43 @@ function fullReload() {
 }
 
 function ready() {
-	localforage.getItem("cached-songs").then((a) => {
-		if (a == null) fullReload();
-		else {
-			let storages_len = navigator.getDeviceStorages("sdcard").length;
-			sift = a;
-			// if storage medium is gone we get rid of it
-			sift = sift.filter((a) => a.storage < storages_len);
-			init();
-			getMusic().then((array) => {
-				let found = newItems(sift, array),
-					missing = notItems(sift, array);
-
-				if (missing.length > 0 || found.length > 0) {
-					showLoading();
-					if (found.length > 0) {
-						console.log("new songs :", found.length);
-						sift = sift.concat(found);
+	localforage.getItem("history").then((a) => {
+		let defSet = {
+			albums: [],
+			queue: [],
+			time: 0,
+			new: [],
+			index: 0,
+		};
+		let toProp = { history: {} };
+		if (a == null) {
+			localforage.setItem("history", defSet);
+			toProp.history = defSet;
+		} else {
+			let obj = a;
+			let keys = Object.keys(a);
+			let keys_ = Object.keys(defSet);
+			if (keys.length != keys_.length) {
+				keys_.forEach((a) => {
+					if (keys.indexOf(a) < 0) {
+						obj[a] = defSet[a];
 					}
-					if (missing.length > 0) {
-						console.log("missing songs :", missing.length);
-						sift = sift.filter((a) => missing.find((e) => e.filename == a.filename));
-					}
-					localforage.setItem("cached-songs", array, init);
-				}
-			});
+				});
+			}
+			toProp.history = obj;
 		}
+		Object.keys(toProp.history).forEach((a) => {
+			Object.defineProperty(toProp, a, {
+				get() {
+					return this.history[a];
+				},
+				set(newValue) {
+					this.history[a] = newValue;
+					localforage.setItem("history", this.history);
+				},
+			});
+		});
+		history = toProp;
 	});
 	localforage.getItem("settings").then((a) => {
 		let defSet = {
@@ -407,7 +500,6 @@ function ready() {
 			toProp.settings = defSet;
 		} else {
 			let obj = a;
-			// if there is new settings
 			let keys = Object.keys(a);
 			let keys_ = Object.keys(defSet);
 			if (keys.length != keys_.length) {
@@ -439,56 +531,44 @@ function ready() {
 			api_keys = defSet;
 		} else api_keys = a;
 	});
-}
+	localforage.getItem("cached-songs").then((a) => {
+		if (a == null) fullReload();
+		else {
+			let storages_len = navigator.getDeviceStorages("sdcard").length;
+			sift = a;
+			// if storage medium is gone we get rid of it
+			sift = sift.filter((a) => a.storage < storages_len);
+			init();
+			getMusic().then((array) => {
+				let found = newItems(sift, array),
+					missing = notItems(sift, array);
 
-localforage
-	.ready()
-	.then(ready)
-	.catch(function (e) {
-		console.error(e);
-		alert(e);
-	});
-// resize image blob
-function resizer(blob, _width, _height) {
-	let time = unix_epoch();
-	return new Promise((res, err) => {
-		try {
-			let img = new Image(),
-				url = URL.createObjectURL(blob);
-			img.src = url;
-			img.onload = () => {
-				URL.revokeObjectURL(url);
-				let MAX_WIDTH = _width || 240,
-					MAX_HEIGHT = _height || 240,
-					width = img.width,
-					height = img.height;
-
-				// Change the resizing logic
-				if (width > height) {
-					if (width > MAX_WIDTH) {
-						height = height * (MAX_WIDTH / width);
-						width = MAX_WIDTH;
+				if (missing.length > 0 || found.length > 0) {
+					showLoading();
+					if (found.length > 0) {
+						console.log("new songs :", found.length);
+						sift = sift.concat(found);
 					}
-				} else {
-					if (height > MAX_HEIGHT) {
-						width = width * (MAX_HEIGHT / height);
-						height = MAX_HEIGHT;
+					if (missing.length > 0) {
+						console.log("missing songs :", missing.length);
+						sift = sift.filter((a) => missing.find((e) => e.filename == a.filename));
 					}
+					sessionStorage.removeItem("running");
+					localforage.setItem("cached-songs", array, init);
 				}
-
-				let canvas = document.createElement("canvas");
-				canvas.width = width;
-				canvas.height = height;
-				let ctx = canvas.getContext("2d");
-				ctx.drawImage(img, 0, 0, width, height);
-				console.log("image resize ended: " + (unix_epoch() - time) + "ms");
-				res(canvas);
-			};
-		} catch (e) {
-			err(e);
+			});
 		}
 	});
 }
+
+localforage.ready().then(ready, (e) => {
+	console.error(e);
+	alert(e);
+});
+
+// resize image blob
+//prettier-ignore
+function resizer(e,t,n){let c=unix_epoch();return new Promise((o,r)=>{try{let i=new Image,a=URL.createObjectURL(e);i.src=a,i.onload=(()=>{URL.revokeObjectURL(a);let e=t||240,r=n||240,h=i.width,d=i.height;h>d?h>e&&(d*=e/h,h=e):d>r&&(h*=r/d,d=r);let l=document.createElement("canvas");l.width=h,l.height=d,l.getContext("2d").drawImage(i,0,0,h,d),console.log("image resize ended: "+(unix_epoch()-c)+"ms"),o(l)})}catch(e){r(e)}})}
 // returns an array of items not found in the other array
 // should only be used for array of objects
 function newItems(a, b) {
