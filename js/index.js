@@ -155,10 +155,13 @@ function getImage(hash, filename) {
 					getFile(filename)
 						.then(getTags)
 						.then((e) => {
-							let blob = e.picture;
-							cachedImages["album-" + hash] = URL.createObjectURL(blob);
-							updateCSS();
-							localforage.setItem("album-" + hash, blob, () => res(cachedImages["album-" + hash]));
+							function t(blob) {
+								cachedImages["album-" + hash] = URL.createObjectURL(blob);
+								updateCSS();
+								localforage.setItem("album-" + hash, blob, () => res(cachedImages["album-" + hash]));
+							}
+							if (!settings.resizeImage) t(e.picture);
+							else resizer(e.picture, 240, 240).then((e) => e.toBlob(t, "image/jpg", 0.8));
 						})
 						.catch(err);
 				} else {
@@ -380,6 +383,19 @@ function init() {
 					getId("home").style.backgroundImage = `none`;
 					getId("player").style.backgroundImage = `none`;
 				});
+			setTimeout(function nowplay() {
+				if (!settings.nowplay) return;
+				let { audio, song } = player;
+				if (!audio.paused && audio.duration > 30 && song.artist !== "Unknown Artist") {
+					lastfmNowPlaying(song);
+				}
+				if (audio.paused)
+					audio.addEventListener("play", function play() {
+						audio.removeEventListener("play", play);
+						nowplay();
+					});
+			}, 1000);
+			console.log("playevent");
 		};
 		setTimeout(() => {
 			audio.currentTime = init_time;
@@ -542,7 +558,7 @@ var loadImages = (() => {
 				if (cachedImages["album-" + picture]) interval();
 				else {
 					getImage(picture, filename);
-					setTimeout(interval, 600);
+					setTimeout(interval, 700);
 				}
 			} else interval();
 		})();
@@ -571,7 +587,7 @@ const historyInt = (() => {
 				let index = albums.findIndex((e) => e.picture == a);
 				if (index == -1) return;
 				el.dataset.i = index;
-				setTimeout(() => getImage(a, albums[index].filename), 200 * i);
+				setTimeout(() => getImage(a, albums[index].filename), 1000 * i);
 				container.appendChild(el);
 			});
 		}
@@ -761,8 +777,7 @@ function getBio(type, name) {
 					let en = (e) => encodeURIComponent(e);
 					fetch(
 						`http://cyan-socials.herokuapp.com/scrobble/?type=${type}` +
-							(type == "artist" ? `&artist=${en(name)}` : `&artist=${en(name.artist)}&album=${en(name.album)}`) +
-							(api_keys.lastfm ? `&api_key=${api_keys.lastfm}` : "")
+							(type == "artist" ? `&artist=${en(name)}` : `&artist=${en(name.artist)}&album=${en(name.album)}`)
 					)
 						.then((a) => a.json())
 						.then((a) => {
@@ -1042,3 +1057,14 @@ window.onhashchange = () => {
 // get color from image url
 // prettier-ignore
 function getAverageRGB(t){return new Promise((e,a)=>{let r=new Image;r.src=t,r.onload=(()=>{var t,a,g,n,o={r:0,g:0,b:0},d=document.createElement("canvas"),h=d.getContext&&d.getContext("2d"),c=-4,i={r:0,g:0,b:0},m=0;if(!h)return o;g=d.height=r.height,a=d.width=r.width,h.drawImage(r,0,0);try{t=h.getImageData(0,0,a,g)}catch(t){return o}for(n=t.data.length;(c+=20)<n;)++m,i.r+=t.data[c],i.g+=t.data[c+1],i.b+=t.data[c+2];i.r=~~(i.r/m),i.g=~~(i.g/m),i.b=~~(i.b/m);{let{r:t,g:e,b:a}=i,r=[t/255,e/255,a/255].map(t=>t<=.03928?t/12.92:Math.pow((t+.055)/1.055,2.4)),g=.2126*r[0]+.7152*r[1]+.0722*r[2];i.color=!(g>.179)}e(i)})})}
+
+function factoryReset() {
+	historyInt.pause();
+	localforage.clear().then(() => window.close());
+}
+
+function deleteImages() {
+	localforage.keys().then((a) => {
+		a.filter((e) => e.includes("album-")).forEach((b) => localforage.removeItem(b));
+	});
+}

@@ -10,7 +10,7 @@
 		<script src="js/libs/localforage.min.js"></script>
 		<script src="js/libs/metadata-audio-parser.js"></script>
 		<script src="js/player.js"></script>
-		<script src="js/libs/lastfm-node.bundle.js"></script>
+		<script src="js/libs/lastfm_node.bundle.js"></script>
 		<script src="js/lastfm.js"></script>
 		<script src="js/index.js" defer></script>
 		<link rel="stylesheet" href="css/style.css" />
@@ -75,9 +75,20 @@
 		<div id="loading">Loading...</div>
 		<div
 			id="stall"
-			style="position: fixed; top: 0px; left: 0px; width: 100vw; height: 100vh; display: grid; justify-items: center; align-items: center; background-color: rgb(0, 0, 0)"
+			style="
+				opacity: 1;
+				position: fixed;
+				top: 0px;
+				left: 0px;
+				width: 100vw;
+				height: 100vh;
+				display: grid;
+				justify-items: center;
+				align-items: center;
+				background-color: rgb(0, 0, 0);
+			"
 		>
-			<div style="width: 84px; height: 84px; background-image: url('/css/112.png')"></div>
+			<div style="background-image: url('/css/112.png'); height: 64px; width: 64px"></div>
 		</div>
 	</body>
 	<style id="cache"></style>

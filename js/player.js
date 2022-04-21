@@ -47,11 +47,14 @@ const player = (() => {
 			this.onplayevent = () => {};
 			audio.addEventListener("ended", () => {
 				if (firstTime) {
-					getId("stall").style.display = "none";
+					setTimeout(() => (getId("stall").style.display = "none"), 1000);
 					firstTime = false;
 					return;
 				}
 				console.log("ended");
+				if (player.audio.duration > 30 && player.song.artist !== "Unknown Artist" && settings.scrobble) {
+					lastfmScrobble(player.song);
+				}
 				this.discard();
 			});
 			let unplugged = false;
