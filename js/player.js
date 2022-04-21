@@ -1,12 +1,5 @@
-function hashCode(r) {
-	var n,
-		t = 0;
-	if (0 === r.length) return t;
-	for (n = 0; n < r.length; n++) (t = (t << 5) - t + r.charCodeAt(n)), (t |= 0);
-	return Array.from(t.toString())
-		.map((r) => "ledoshcyan"[r])
-		.join("");
-}
+// prettier-ignore
+function hashCode(r){var n,o=0;if(0===r.length)return o;for(n=0;n<r.length;n++)o=(o<<5)-o+r.charCodeAt(n),o|=0;return Array.from(o.toString()).map(r=>"ledoshcyan"[r]).join("")}
 function getFile(filename) {
 	return new Promise((res, err) => {
 		let get = navigator.getDeviceStorage("sdcard").get(filename);
@@ -54,12 +47,23 @@ const player = (() => {
 			this.onplayevent = () => {};
 			audio.addEventListener("ended", () => {
 				if (firstTime) {
+					getId("stall").style.display = "none";
 					firstTime = false;
 					return;
 				}
 				console.log("ended");
 				this.discard();
 			});
+			let unplugged = false;
+			(navigator.mozAudioChannelManager || {}).onheadphoneschange = function () {
+				if (this.headphones == false) {
+					unplugged = true;
+					audio.pause();
+				} else if (unplugged) {
+					unplugged = false;
+					audio.play();
+				} else unplugged = false;
+			};
 		}
 
 		add(arg) {
@@ -101,13 +105,16 @@ const player = (() => {
 				this.discard(true);
 			}, 30);
 		}
-		discard(key) {
-			if (settings.repeat == "repeat-one" && !key) {
-				this.play();
+		discard(key, force) {
+			if (settings.repeat == "repeat-one" && !key && !force) {
+				this.audio.pause();
+				setTimeout(() => (this.currentTime = 0), 20);
+				setTimeout(() => this.audio.play(), 500);
 				return;
 			}
 			URL.revokeObjectURL(this.url);
 			this.url = null;
+			if (force) return;
 			if (this.index + 1 < this.queue.length) {
 				this.index++;
 				this.play();
@@ -133,17 +140,17 @@ const player = (() => {
 		pause() {
 			this.audio.pause();
 		}
-		play() {
+		play(pause, index) {
 			if (this.queue.length == 0) {
 				this.index = 0;
 				return;
 			}
 			let audio = this.audio;
 			if (this.url == null) {
+				if (index) this.index = index;
 				let next = this.songs[this.index];
 				audio.pause();
 				getFile(next.filename).then((a) => {
-					console.log("audio get file success!");
 					let url = URL.createObjectURL(a);
 					this.url = url;
 					this.id = next.id;
@@ -153,9 +160,16 @@ const player = (() => {
 					audio.load();
 					setTimeout(() => {
 						audio.currentTime = 0;
-						audio.play();
+						if (!pause) audio.play();
+						else audio.pause();
 						this.onplayevent();
 					}, 50);
+					if (history.albums.includes(this.picture)) {
+						history.albums = history.albums.filter((a) => a != this.picture);
+					}
+					history.albums.unshift(this.picture);
+					history.queue = this.queue;
+					history.index = this.index;
 				});
 			} else {
 				audio.play();
@@ -184,6 +198,18 @@ const player = (() => {
 			if (this.audio.paused) {
 				this.play();
 			} else this.pause();
+		}
+		playlist(array = [], index, pause) {
+			if (array.length == 0) return;
+			this.index = 0;
+			this.pause();
+			this.discard(false, true);
+			if (array[0].id) {
+				this.queue = array.map((a) => a.id);
+			} else {
+				this.queue = array;
+			}
+			this.play(pause, index);
 		}
 	}
 

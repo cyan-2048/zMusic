@@ -6,23 +6,53 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Document</title>
-		<script src="js/localforage.min.js"></script>
-		<script src="js/metadata-audio-parser.js"></script>
+		<script src="js/libs/spatial_navigation.js"></script>
+		<script src="js/libs/localforage.min.js"></script>
+		<script src="js/libs/metadata-audio-parser.js"></script>
 		<script src="js/player.js"></script>
+		<script src="js/libs/lastfm-node.bundle.js"></script>
+		<script src="js/lastfm.js"></script>
 		<script src="js/index.js" defer></script>
 		<link rel="stylesheet" href="css/style.css" />
 	</head>
 	<body>
-		<div id="home">
-			<div data-index="0"></div>
-			<div data-index="1"></div>
-			<div data-index="2"></div>
+		<div class="selected" id="home">
+			<title>music+video</title>
+			<div id="wrapper">
+				<div class="focus" data-index="0">
+					<div id="music" data-sn-right="#nowplaying" tabindex="0">music</div>
+					<div id="videos" tabindex="0">videos</div>
+					<div id="settings" tabindex="0">settings</div>
+				</div>
+				<div data-index="1">
+					<title>history</title>
+					<div id="nowplaying" data-sn-left="#music" tabindex="0">
+						<time></time>
+						<title></title>
+					</div>
+					<div class="container"></div>
+				</div>
+				<div data-index="2">
+					<title>new</title>
+					<div class="container"></div>
+				</div>
+			</div>
 			<footer></footer>
 		</div>
 		<div id="music">
-			<header></header>
-			<div data-index="0"></div>
+			<header>MUSIC</header>
+			<tabs
+				><div class="selected">artists&nbsp;</div>
+				<div>albums&nbsp;</div>
+				<div>songs&nbsp;</div>
+				<div>genres&nbsp;</div>
+				<div>playlists&nbsp;</div>
+			</tabs>
+			<div class="focus" data-index="0"></div>
 			<div data-index="1"></div>
+			<div data-index="2"></div>
+			<div data-index="3"></div>
+			<div data-index="4"></div>
 			<footer></footer>
 		</div>
 		<div id="settings">
@@ -34,12 +64,20 @@
 			<div data-index="0">
 				<div id="player_artist"></div>
 				<div id="player_album"></div>
-				<img id="player_image" alt="album art" />
+				<div id="player_image"></div>
 				<div id="player_progress"></div>
 				<div id="player_title"></div>
 				<div id="player_queue"></div>
 			</div>
 			<footer></footer>
+		</div>
+		<div id="logs"></div>
+		<div id="loading">Loading...</div>
+		<div
+			id="stall"
+			style="position: fixed; top: 0px; left: 0px; width: 100vw; height: 100vh; display: grid; justify-items: center; align-items: center; background-color: rgb(0, 0, 0)"
+		>
+			<div style="width: 84px; height: 84px; background-image: url('/css/112.png')"></div>
 		</div>
 	</body>
 	<style id="cache"></style>

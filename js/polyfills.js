@@ -1,24 +1,23 @@
-if (!Array.prototype.flat) {
-	Object.defineProperty(Array.prototype, "flat", {
-		configurable: true,
-		writable: true,
-		value: function () {
-			var depth = typeof arguments[0] === "undefined" ? 1 : Number(arguments[0]) || 0;
-			var result = [];
-			var forEach = result.forEach;
+// prettier-ignore
+Array.prototype.flat||Object.defineProperty(Array.prototype,"flat",{configurable:!0,writable:!0,value:function(){var r=void 0===arguments[0]?1:Number(arguments[0])||0,t=[],a=t.forEach,e=function(r,o){a.call(r,function(r){o>0&&Array.isArray(r)?e(r,o-1):t.push(r)})};return e(this,r),t}});
 
-			var flatDeep = function (arr, depth) {
-				forEach.call(arr, function (val) {
-					if (depth > 0 && Array.isArray(val)) {
-						flatDeep(val, depth - 1);
-					} else {
-						result.push(val);
-					}
-				});
-			};
+var self = ((a) => {
+	a.onsuccess = function () {
+		self = this.result;
+	};
+})(navigator.mozApps.getSelf());
 
-			flatDeep(this, depth);
-			return result;
-		},
-	});
-}
+const getId = (e) => document.getElementById(e),
+	qs = (e) => document.querySelector(e),
+	qsa = (e) => [...document.querySelectorAll(e)],
+	unix_epoch = () => new Date().getTime(),
+	last = (e) => e[e.length - 1];
+Element.prototype.qs = Element.prototype.querySelector;
+Element.prototype.qsa = function (e) {
+	return [...this.querySelectorAll(e)];
+};
+const actEl = (e) => document.activeElement;
+
+// focus - focusOptions - preventScroll polyfill
+// prettier-ignore
+!function(){HTMLElement.prototype.nativeFocus=HTMLElement.prototype.focus;var t=function(t){for(var e=0;e<t.length;e++)t[e][0].scrollTop=t[e][1],t[e][0].scrollLeft=t[e][2];t=[]};HTMLElement.prototype.focus=function(e){if(e&&e.preventScroll){var o=function(t){for(var e=t.parentNode,o=[],n=document.scrollingElement||document.documentElement;e&&e!==n;)(e.offsetHeight<e.scrollHeight||e.offsetWidth<e.scrollWidth)&&o.push([e,e.scrollTop,e.scrollLeft]),e=e.parentNode;return e=n,o.push([e,e.scrollTop,e.scrollLeft]),o}(this);if("function"==typeof setTimeout){var n=this;setTimeout(function(){n.nativeFocus(),t(o)},0)}else this.nativeFocus(),t(o)}else this.nativeFocus()}}();

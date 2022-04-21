@@ -12,6 +12,7 @@ body {
 	box-sizing: border-box;
 	background-repeat: no-repeat;
 	color: whitesmoke;
+	background-size: cover;
 }
 
 :focus {
@@ -23,6 +24,14 @@ body > [id] {
 	width: 100vw;
 	position: fixed;
 	top: 26px;
+	transition: transform 0.3s ease, opacity 0.3s ease;
+	transform: scale(1.3);
+	opacity: 0;
+}
+
+body > .selected {
+	transform: none !important;
+	opacity: 1 !important;
 }
 
 [id] > footer {
@@ -41,6 +50,24 @@ body > [id] {
 
 #player_image {
 	width: 170px !important;
+	height: 170px;
+	background-size: cover;
+	overflow: hidden;
+	margin-bottom: 5px;
+	background-color: rgba(0, 0, 0, 0.5);
+	text-align: center;
+	line-height: 170px;
+}
+
+#player_image::before {
+	content: "NO IMAGE";
+	font-size: 20px;
+	color: white;
+	font-weight: 800;
+	display: inline;
+}
+#player_image[class^="album-"]::before {
+	display: none;
 }
 
 #player_progress {
@@ -104,4 +131,405 @@ body > [id] {
 	line-height: 1;
 	font-size: 15px;
 	margin-bottom: 4px;
+}
+
+#home #wrapper > [data-index] {
+	padding: 10px;
+	height: 100%;
+	font-size: large;
+	grid-row: 1;
+	position: relative;
+	padding-top: 62px;
+	overflow: hidden;
+}
+
+#home #wrapper {
+	font-size: 0px;
+	overflow: hidden;
+	display: grid;
+	grid-template-columns: calc(100vw - 20px) calc(100vw - 20px) 100vw;
+	height: 100%;
+}
+
+#home [data-index="0"] {
+	padding: 20px !important;
+	padding-top: 62px !important;
+}
+
+#home [data-index="0"] > div {
+	font-size: 27.5px;
+	height: 42px;
+	background-image: none;
+	background-color: unset;
+	border: none;
+}
+#home > title {
+	position: absolute;
+	top: 18px;
+	font-size: 70px;
+	font-weight: lighter;
+	left: 14px;
+	height: 70px;
+	color: var(--accent, grey);
+	transition: transform 0.5s;
+	z-index: -5;
+	display: block;
+	line-height: 70px;
+}
+
+#home [data-index] > title {
+	display: block;
+	font-size: 26px;
+	margin-left: 3px;
+}
+
+#home *:focus {
+	outline: var(--accent, grey) solid 4px;
+	z-index: 100;
+}
+
+[data-index="0"] > #music {
+	margin-top: 8px;
+}
+
+#home #nowplaying {
+	width: 180px;
+	height: 180px;
+	background-color: #708090;
+	margin: 3px 1px 1px;
+	padding: 5px;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+#nowplaying + .container {
+	display: grid;
+	grid-gap: 3px;
+	grid-template-columns: repeat(3, 58px);
+	margin-left: 1px;
+	margin-top: 3px;
+}
+#nowplaying + .container > * {
+	width: 58px;
+	height: 58px;
+	background-color: #f0f8ff;
+}
+
+#home [data-index="2"] .container {
+	display: grid;
+	grid-gap: 3px;
+	grid-template-columns: repeat(2, 87px);
+	margin-left: 1px;
+	margin-top: 3px;
+	margin-bottom: 10px;
+}
+
+#home [data-index="2"] .container > * {
+	width: 87px;
+	height: 87px;
+	background-color: #f0f8ff;
+}
+
+#home {
+	top: 0;
+	height: 100vh;
+	padding-top: 26px;
+}
+
+#home::before {
+	content: "";
+	background-color: rgba(0, 0, 0, 0.7);
+	width: 100vw;
+	height: 100vh;
+	overflow: hidden;
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+.container {
+	padding-bottom: 10px;
+}
+
+#nowplaying time,
+#nowplaying title {
+	display: block;
+	color: inherit;
+	text-shadow: 0px 0px 3px var(--shadow, #000);
+}
+
+#nowplaying title {
+	font-size: 16px;
+	font-weight: 700;
+	text-overflow: ellipsis;
+}
+
+#nowplaying time {
+	font-size: 50px;
+	font-weight: lighter;
+	line-height: 1;
+	margin-top: auto;
+}
+
+body > [id] > header {
+	font-size: 14px;
+	width: 100vw;
+	height: 18px;
+	line-height: 1;
+	padding: 2px 6px;
+	font-weight: 600;
+	text-transform: capitalize;
+}
+
+tabs {
+	width: -moz-max-content;
+	height: 41px;
+	overflow: hidden;
+	white-space: nowrap;
+	padding-left: 6px;
+	top: 13px;
+	position: absolute;
+	letter-spacing: -1px;
+	display: block;
+	left: 0;
+	transition: transform 0.4s linear;
+	font-size: 0;
+}
+tabs > * {
+	display: inline-block;
+	font-size: 29px;
+	--a: cubic-bezier(1, 0, 0, 1);
+	transition: width 0.3s var(--a), transform 0.3s var(--a), color 0.2s ease;
+	color: rgba(255, 255, 255, 0.4);
+	width: -moz-fit-content;
+}
+tabs > *.selected {
+	color: white;
+}
+
+#logs {
+	background-color: #393f4c;
+}
+#logs > * {
+	font-family: "Droid Sans Mono";
+	letter-spacing: -0.9px;
+	font-size: 13px;
+	padding: 2px 5px 4px 20px;
+	word-break: break-all;
+	border-left: 4px solid #cbcbcb;
+	position: relative;
+	color: #d99b28;
+}
+#logs > *::before,
+#logs > *::after {
+	position: absolute;
+}
+#logs > *::before {
+	top: 3px;
+	left: 3px;
+	font-size: 9px;
+}
+.error::before,
+.exception::before {
+	content: "❌";
+}
+.error,
+.exception {
+	background-color: #574250;
+}
+.info::before {
+	content: "ℹ";
+}
+.warn::before {
+	content: "⚠";
+}
+
+.grey {
+	color: #e9f4fe !important;
+}
+#logs > *:focus {
+	background-color: #475983 !important;
+}
+
+body > [id] > header + tabs ~ [data-index] {
+	height: calc(100vh - 110px);
+	overflow: hidden;
+	position: absolute;
+	width: 100vw;
+	top: 54px;
+	left: 0;
+	opacity: 0;
+}
+
+body > [id] > header + tabs ~ [data-index].focus {
+	opacity: 1;
+}
+
+@keyframes go-left {
+	from {
+		opacity: 1;
+		transform: none;
+	}
+	to {
+		opacity: 1;
+		transform: translateX(-100vw);
+	}
+}
+@keyframes go-right {
+	from {
+		opacity: 1;
+		transform: none;
+	}
+	to {
+		opacity: 1;
+		transform: translateX(100vw);
+	}
+}
+@keyframes in-right {
+	from {
+		opacity: 1;
+		transform: translateX(100vw);
+	}
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+@keyframes in-left {
+	from {
+		opacity: 1;
+		transform: translateX(-100vw);
+	}
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+.go-left {
+	animation: go-left 0.3s cubic-bezier(1, 0, 0, 1);
+}
+.in-right {
+	animation: in-right 0.3s cubic-bezier(1, 0, 0, 1);
+}
+.go-right {
+	animation: go-right 0.3s cubic-bezier(1, 0, 0, 1);
+}
+.in-left {
+	animation: in-left 0.3s cubic-bezier(1, 0, 0, 1);
+}
+#music > [data-index] > * {
+	background-attachment: local;
+}
+#music > [data-index]:not([data-index="1"]) > * {
+	height: 48px;
+	background-size: 38px;
+	font-size: 16px;
+	padding-left: 45px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	line-height: 2.4;
+	background-position: 1px;
+}
+#music [tabindex] {
+	border: transparent solid 4px;
+}
+#music *:focus {
+	border: var(--accent, grey) solid 4px;
+}
+#music > [data-index="1"] {
+	padding: 6.5px;
+}
+#music > [data-index="1"] > * {
+	height: 142px;
+	width: 113px;
+	background-size: 103px;
+	background-position: 1px 1px;
+	padding: 4px;
+	padding-top: 104px;
+	font-size: 12px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	display: inline-block;
+}
+#music > [data-index="2"] > *::after {
+	content: attr(data-artist);
+	position: absolute;
+}
+#music > [data-index="2"] > * {
+	line-height: 1.5 !important;
+}
+#music > [data-index="2"] > *::after {
+	content: attr(data-artist);
+	position: absolute;
+	display: block;
+	font-size: 12px;
+	color: grey;
+	width: calc(100vw - 55px);
+	margin-top: -33px;
+	line-height: 6.2;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	margin-left: -0.5px;
+}
+
+#music > [data-index="0"] > *::before,
+#music > [data-index="3"] > *::before,
+#music > [data-index="4"] > *::before {
+	/* temp */
+	content: "▷";
+	width: 38px;
+	height: 38px;
+	background-color: rgba(0, 0, 0, 0.5);
+	display: block;
+	position: absolute;
+	margin-left: -44px;
+	margin-top: 1px;
+	color: white;
+	font-size: 32px;
+	line-height: 1;
+	text-align: center;
+}
+#music > [data-index="1"] > *::after {
+	content: attr(data-artist);
+	font-size: 10px;
+	color: grey;
+	display: block;
+	position: absolute;
+	width: 100px;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	margin-top: -3px;
+}
+sticky {
+	position: sticky !important;
+	color: var(--accent, grey);
+	height: 25px !important;
+	width: 100vw !important;
+	top: 0 !important;
+	background-color: black !important;
+	z-index: 1 !important;
+	display: block !important;
+	line-height: unset !important;
+	padding: unset !important;
+	padding-left: 10px !important;
+	left: 0 !important;
+}
+sticky::after {
+	content: attr(data-letter) !important;
+	font-size: 18px !important;
+	position: unset !important;
+	height: unset;
+	line-height: 1.3 !important;
+	margin: unset !important;
+	width: unset !important;
+}
+[data-index="1"] > sticky {
+	left: -6px !important;
+	top: -7px !important;
+	padding-left: 2px !important;
 }

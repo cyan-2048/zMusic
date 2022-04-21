@@ -2,7 +2,7 @@
 	"version": "0.0.1",
 	"name": "zMusic",
 	"description": "music player by cyan for cyan.",
-	"launch_path": "/index.html",
+	"launch_path": "/index.html#home",
 	"fullscreen": "true",
 	"chrome": {
 		"statusbar": "overlap"
@@ -39,5 +39,11 @@
 			"description": "China Type Approval(CTA)"
 		}
 	},
+	"redirects": [
+		{
+			"from": "https://app.cyankindasus.com/zmusic/",
+			"to": "/redirect/lastfm.html"
+		}
+	],
 	"default_locale": "en-US"
 }
