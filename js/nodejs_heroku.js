@@ -1,6 +1,7 @@
 // because of api secret and api key
 // i decided to use a nodejs server
 // here is what the server script does...
+// api key may or may not be changed or randomly given
 const express = require("express"),
 	app = express(),
 	fetch = require("node-fetch"),

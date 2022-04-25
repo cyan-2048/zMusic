@@ -1,3 +1,4 @@
+let firstTime = true;
 // prettier-ignore
 function hashCode(r){var n,o=0;if(0===r.length)return o;for(n=0;n<r.length;n++)o=(o<<5)-o+r.charCodeAt(n),o|=0;return Array.from(o.toString()).map(r=>"ledoshcyan"[r]).join("")}
 function getFile(filename) {
@@ -10,6 +11,18 @@ function getFile(filename) {
 			err(e);
 		};
 	});
+}
+// returns new array that's shuffled
+function shuffle(arr = []) {
+	return [...arr].sort(() => 0.5 - Math.random());
+}
+// returns array of things of something
+function spread(obj, arr) {
+	return arr.map((a) => obj[a]);
+}
+// hashAlbum
+function hashAlbum(song) {
+	return hashCode((song.album || "Unknown Album") + (song.artist || "Unknown Artist").split(", ")[0] + song.year || "");
 }
 const player = (() => {
 	function handleVolume(e) {
@@ -39,20 +52,22 @@ const player = (() => {
 			(navigator.mozAudioChannelManager || {}).volumeControlChannel = "content";
 			this.audio = audio;
 			this.queue = [];
+			this.unshuffled = [];
+			this.shuffle = false;
 			this.index = 0;
 			this.url = null;
 			// weird bug, to fix we play a small audio file
 			audio.src = "/js/test.mp3";
-			let firstTime = true;
 			this.onplayevent = () => {};
 			audio.addEventListener("ended", () => {
 				if (firstTime) {
 					setTimeout(() => (getId("stall").style.display = "none"), 1000);
+					if (typeof firstTime == "function") firstTime();
 					firstTime = false;
 					return;
 				}
 				console.log("ended");
-				if (player.audio.duration > 30 && player.song.artist !== "Unknown Artist" && settings.scrobble) {
+				if (player.audio.duration > 30 && player.song.artist !== "Unknown Artist" && isLoggedIn() && settings.scrobble) {
 					lastfmScrobble(player.song);
 				}
 				this.discard();
@@ -115,7 +130,9 @@ const player = (() => {
 				setTimeout(() => this.audio.play(), 500);
 				return;
 			}
-			URL.revokeObjectURL(this.url);
+			try {
+				URL.revokeObjectURL(this.url);
+			} catch (e) {}
 			this.url = null;
 			if (force) return;
 			if (this.index + 1 < this.queue.length) {
@@ -123,12 +140,15 @@ const player = (() => {
 				this.play();
 				return;
 			}
-			if (this.index + 1 == this.queue.length && settings.repeat == "repeat-all") {
+			if (this.index + 1 == this.queue.length && (settings.repeat == "repeat-all" || this.shuffle)) {
 				this.index = 0;
 				this.play();
 			}
 		}
 		playPrevious() {
+			if (this.currentTime > 3) {
+				return (this.currentTime = 0);
+			}
 			this.audio.pause();
 			setTimeout(() => {
 				if (this.index == 0) {
@@ -152,30 +172,46 @@ const player = (() => {
 			if (this.url == null) {
 				if (index) this.index = index;
 				let next = this.songs[this.index];
+				if (!next) return this.playlist(sift, 0, true);
 				audio.pause();
-				getFile(next.filename).then((a) => {
-					let url = URL.createObjectURL(a);
-					this.url = url;
-					this.id = next.id;
-					this.picture = hashCode((next.album || "Unknown Album") + (next.artist || "Unknown Artist").split(", ")[0] + next.year || "");
-					this.song = next;
-					audio.src = url;
-					audio.load();
-					setTimeout(() => {
-						audio.currentTime = 0;
-						if (!pause) audio.play();
-						else audio.pause();
-						this.onplayevent();
-					}, 50);
-					if (history.albums.includes(this.picture)) {
-						history.albums = history.albums.filter((a) => a != this.picture);
-					}
-					history.albums.unshift(this.picture);
-					history.queue = this.queue;
-					history.index = this.index;
-				});
+				getFile(next.filename)
+					.then((a) => {
+						let url = URL.createObjectURL(a);
+						this.url = url;
+						this.id = next.id;
+						this.picture = hashAlbum(next);
+						this.song = next;
+						audio.src = url;
+						audio.load();
+						setTimeout(() => {
+							audio.currentTime = 0;
+							if (!pause) audio.play();
+							else audio.pause();
+							this.onplayevent();
+						}, 50);
+						if (history.albums.includes(this.picture)) {
+							history.albums = history.albums.filter((a) => a != this.picture);
+						}
+						history.albums.unshift(this.picture);
+						if (!this.shuffle) {
+							history.queue = this.queue;
+							history.index = this.index;
+						} else {
+							history.queue = this.unshuffled;
+							history.index = this.unshuffled.indexOf(this.queue[this.index]);
+						}
+					})
+					.catch((e) => {
+						this.play(false, this.index + 1);
+					});
 			} else {
 				audio.play();
+			}
+		}
+		playIndex(index, pause) {
+			if (index < this.queue.length && index >= 0) {
+				this.discard(true, true);
+				this.play(pause, index);
 			}
 		}
 		volumeUp() {
@@ -202,9 +238,8 @@ const player = (() => {
 				this.play();
 			} else this.pause();
 		}
-		playlist(array = [], index, pause) {
+		playlist(array = [], index = 0, pause) {
 			if (array.length == 0) return;
-			this.index = 0;
 			this.pause();
 			this.discard(false, true);
 			if (array[0].id) {
@@ -212,7 +247,26 @@ const player = (() => {
 			} else {
 				this.queue = array;
 			}
+			this.shuffle = false;
+			this.unshuffled = [];
 			this.play(pause, index);
+		}
+		toggleShuffle() {
+			if (this.shuffle) {
+				this.queue = [...this.unshuffled];
+				this.index = this.queue.indexOf(this.id);
+				this.unshuffled = [];
+				this.shuffle = false;
+				let { songs, index } = this;
+				getId("player_queue").innerText = ((songs[index + 1] || {}).title || "") + "\n" + ((songs[index + 2] || {}).title || "");
+			} else {
+				// we don't want any arrays being referenced
+				this.unshuffled = [...this.queue];
+				this.queue = shuffle(this.queue);
+				this.index = this.queue.indexOf(this.id);
+				this.shuffle = true;
+				getId("player_queue").innerText = "";
+			}
 		}
 	}
 
