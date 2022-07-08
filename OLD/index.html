@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<script src="js/polyfills.js"></script>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Document</title>
+		<script src="js/libs/spatial_navigation.js"></script>
+		<script src="js/modals.js" defer></script>
+		<script src="js/libs/localforage.min.js"></script>
+		<script src="js/libs/metadata-audio-parser.js"></script>
+		<script src="js/player.js" defer></script>
+		<script src="js/libs/pure-md5.min.js"></script>
+		<script src="js/libs/lastfm_node.min.js"></script>
+		<script src="js/lastfm.js"></script>
+		<script src="js/playlist.js"></script>
+		<script src="js/index.js" defer></script>
+		<link rel="stylesheet" href="css/style.css" />
+	</head>
+	<body>
+		<div class="selected" id="home">
+			<title>music+video</title>
+			<div id="wrapper">
+				<div class="focus" data-index="0">
+					<div href="music" data-sn-right="#nowplaying" tabindex="0">music</div>
+					<div href="videos" tabindex="0">videos</div>
+					<div href="settings" tabindex="0">settings</div>
+					<div href="search" tabindex="0">
+						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+							<path
+								d="M221.09 64a157.09 157.09 0 10157.09 157.09A157.1 157.1 0 00221.09 64z"
+								fill="none"
+								stroke="currentColor"
+								stroke-miterlimit="10"
+								stroke-width="32"
+							></path>
+							<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="32" d="M338.29 338.29L448 448"></path>
+						</svg>
+					</div>
+				</div>
+				<div data-index="1">
+					<title>history</title>
+					<div id="nowplaying" data-sn-left="[href='music']" tabindex="0">
+						<time></time>
+						<title></title>
+					</div>
+					<div class="container"></div>
+				</div>
+				<div data-index="2">
+					<title>new</title>
+					<div class="container"></div>
+				</div>
+			</div>
+			<footer></footer>
+		</div>
+		<div id="music">
+			<header>MUSIC</header>
+			<tabs
+				><div class="selected">artists&nbsp;</div>
+				<div>albums&nbsp;</div>
+				<div>songs&nbsp;</div>
+				<div>genres&nbsp;</div>
+				<div>playlists&nbsp;</div>
+			</tabs>
+			<div class="focus" data-index="0"></div>
+			<div data-index="1"></div>
+			<div data-index="2"></div>
+			<div data-index="3"></div>
+			<div data-index="4"></div>
+			<footer>
+				<div><img src="css/menu.svg" /></div>
+				<div></div>
+				<div><img src="css/queue.svg" /></div>
+			</footer>
+		</div>
+		<div id="settings">
+			<header>SETTINGS</header>
+			<tabs
+				><div class="selected">general&nbsp;</div>
+				<div>player&nbsp;</div>
+				<div>lastfm&nbsp;</div>
+				<div>storage&nbsp;</div>
+				<div>developer&nbsp;</div>
+			</tabs>
+			<div class="focus" data-index="0">
+				<div data-type="button" href="colors" tabindex="0">Accent Color</div>
+				<div tabindex="0" id="resizeImage" data-type="toggle" data-state="on">Resize Album Image</div>
+				<div tabindex="0" id="strictID3" data-type="toggle" data-state="off">Require Metadata</div>
+				<div tabindex="0" id="nomedia" data-type="toggle" data-state="off">Exclude .nomedia</div>
+				<div tabindex="0" id="bio" data-type="toggle" data-state="on">Show Artist/Album Info</div>
+			</div>
+			<div data-index="1">
+				<div tabindex="0" id="artistImage" aria-required data-type="toggle" data-state="on">Show Artist Image</div>
+				<div tabindex="0" id="artistImageAPI" data-type="picker" data-options="spotify,deezer" data-state="spotify">Artist Image API</div>
+				<div tabindex="0" id="seek" data-type="number" data-min="5" data-max="60" data-state="10">Seek Amount</div>
+				<div tabindex="0" id="timer" aria-required data-type="toggle" data-state="off">Sleep Timer</div>
+				<div tabindex="0" id="timerAmount" data-type="number" data-min="1" data-max="120" data-state="60">Sleep Timer Minutes</div>
+			</div>
+			<div data-index="2">
+				<div data-type="button" id="lastFM_button" tabindex="0">Log In</div>
+				<div tabindex="0" id="scrobble" data-type="toggle" data-state="off">Scrobble from device</div>
+				<div tabindex="0" id="nowplay" data-type="toggle" data-state="off">'now playing' status</div>
+			</div>
+			<div data-index="3">
+				<div data-type="button" id="getEstimate" tabindex="0">Get Estimated storage use</div>
+				<div data-type="button" id="reset" tabindex="0">Format/Reset App</div>
+				<div data-type="button" id="artistcache" tabindex="0">Delete Artist Image Cache</div>
+				<div data-type="button" id="artistcache" tabindex="0">Delete Album Image Cache</div>
+				<div data-type="button" id="importm3u" tabindex="0">Import .m3u file</div>
+				<div data-type="button" id="exportm3u" tabindex="0">Export .m3u file</div>
+			</div>
+			<div data-index="4">
+				<div data-type="button" href="logs" tabindex="0">Show Logs</div>
+				<div data-type="button" id="sendlogs" tabindex="0">Send Logs to Cyan</div>
+				<div data-type="number" id="rateApp" data-min="1" data-max="10" data-state="1" tabindex="0">Rate the App 1-10</div>
+				<div data-type="button" id="sendmessage" tabindex="0">Send Cyan a message</div>
+			</div>
+			<footer>
+				<div><img src="css/help.svg" /></div>
+				<div></div>
+				<div><img src="css/back.svg" /></div>
+			</footer>
+		</div>
+		<div id="player">
+			<div data-index="0">
+				<div id="player_artist"></div>
+				<div id="player_album"></div>
+				<div id="player_image"></div>
+				<div id="player_progress"></div>
+				<div id="player_title"></div>
+				<div id="player_queue"></div>
+			</div>
+			<footer></footer>
+		</div>
+		<div id="logs"></div>
+		<div id="loading">Loading...</div>
+		<div
+			id="stall"
+			style="
+				opacity: 1;
+				position: fixed;
+				top: 0px;
+				left: 0px;
+				width: 100vw;
+				height: 100vh;
+				display: grid;
+				justify-items: center;
+				align-items: center;
+				background-color: rgb(0, 0, 0);
+			"
+		>
+			<div style="background-image: url('/css/112.png'); height: 64px; width: 64px"></div>
+		</div>
+		<div id="modals">
+			<header>TEST</header>
+			<h1>Test label</h1>
+			<div id="picker"></div>
+			<textarea id="textarea"></textarea>
+			<input type="text" id="text" />
+			<input type="tel" id="number" />
+			<div id="body"></div>
+			<footer>
+				<div></div>
+				<div>Select</div>
+				<div>Cancel</div>
+			</footer>
+		</div>
+	</body>
+	<style id="cache"></style>
+</html>
