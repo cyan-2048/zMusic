@@ -1,61 +1,6 @@
 const sn = SpatialNavigation;
 sn.init();
 location.hash = "home";
-window.nativeConsole = window.console;
-window.console = (() => {
-	let con = window.nativeConsole;
-	let pre = qs("#logs");
-	let obj = {};
-	function trim(string) {
-		let length = 25;
-		return string.length > length ? string.substring(0, length - 3) + "..." : string;
-	}
-	Object.keys(Console.prototype).forEach((type) => {
-		obj[type] = function () {
-			let stack = new Error().stack
-				.split("\n")
-				.slice(1)
-				.filter((a) => a)
-				// we replace the origin because useless,
-				// because of kaios security,
-				// scripts can only be same-origin
-				.map((a) => a.replace(self.origin || "app://zmusic.cyankindasus.com", ""));
-			let args = [...arguments];
-			con[type].bind(con).apply(con, args.concat(["\n" + stack.map((a) => `  ${a}`).join("\n")]));
-			// code to run
-			let el = document.createElement("div");
-			el.tabIndex = 0;
-			try {
-				el.dataset.line = last(stack[0].split("@")[1].split("/"));
-			} catch (e) {}
-			el.details = {
-				type,
-				args: args.map((a) => {
-					if (a instanceof Error) {
-						return a.name + ": " + a.message;
-					}
-				}),
-				stack,
-			};
-			el.className = type + " grey";
-			el.innerText = args
-				.map((a) => {
-					if (a instanceof Error) return a.name + ": " + a.message;
-					else if ("object" == typeof a) {
-						let cons = "";
-						if (a && a.constructor && a.constructor.name) cons = a.constructor.name + " ";
-						return cons + trim(JSON.stringify(a));
-					} else {
-						el.classList.remove("grey");
-						return trim(a);
-					}
-				})
-				.join(" ");
-			pre.appendChild(el);
-		};
-	});
-	return obj;
-})();
 
 let cachedImages = {},
 	api_keys = {},
@@ -68,6 +13,7 @@ let cachedImages = {},
 
 function getMusic() {
 	return new Promise((res, err) => {
+		return res([]);
 		const storages = navigator.getDeviceStorages(settings.nomedia ? "sdcard" : "music");
 		let array = [],
 			nomedia = [],

@@ -1,5 +1,5 @@
 import { get } from "svelte/store";
-import { albums, artists, genres, settings, songs as $songs } from "./shared";
+import { albums, artists, genres, settings, songs } from "./shared";
 import parseAudio from "./audio-parser";
 import { cleanObject, hashCode, last, randomString } from "./helper";
 import my_music from "../../private/my music.json";
@@ -79,20 +79,33 @@ export function hashAlbum({ album, artist, year }) {
 }
 
 function siftAlbums(songs) {
-	const set = [];
+	const map = {};
 	const albums = [];
+
+	const avoidNull = randomString();
 
 	const len = songs.length;
 	for (let i = 0; i < len; i++) {
 		const song = songs[i];
-		const hash = hashAlbum(song);
-		if (set.includes(hash)) continue;
-		const { album: name, artist, year, filename } = song;
-		set.push(hash);
-		// idk not sure if
-		// searching from an array of string is faster than array of objects
-		albums.push({ name, artist, year, hash, filename });
+		const hash = hashAlbum(song) || avoidNull;
+		if (hash in map) {
+			map[hash].push(song);
+		} else map[hash] = [song];
 	}
+
+	Object.entries(map).forEach(([hash, songs]) => {
+		if (hash === avoidNull) hash = null;
+		const { artist, year, album: name, filename } = songs[0];
+		albums.push({
+			hash,
+			songs: songs.map((e) => e.hash),
+			name,
+			year,
+			artist: artist?.split(", ")[0] || null,
+			filename,
+		});
+	});
+
 	albums.sort(alphabeticalSort);
 	return albums;
 }
@@ -152,23 +165,28 @@ function siftArtists(songs) {
 	return artists;
 }
 
-export async function init(cb) {
-	if (ready) return true;
-	await Promise.all([$songs, albums].map((a) => a.init));
+async function updateStores(_songs) {
+	await Promise.all([albums, genres, artists].map((a) => a.init));
 
-	let songs = get($songs);
-	if (songs.length === 0) {
-		songs = await loadData();
-		$songs.set(songs);
-	}
-	DEBUG && console.log("songs:", songs);
-
-	albums.set(siftAlbums(songs));
+	albums.set(siftAlbums(_songs));
 	DEBUG && console.log("sifted albums:", get(albums));
 
-	genres.set(siftGenres(songs));
+	genres.set(siftGenres(_songs));
 	DEBUG && console.log("sifted genres:", get(genres));
 
-	artists.set(siftArtists(songs));
+	artists.set(siftArtists(_songs));
 	DEBUG && console.log("sifted artists:", get(artists));
+}
+
+export async function init(cb) {
+	if (ready) return true;
+	await songs.init;
+
+	let _songs = get(songs);
+	if (_songs.length === 0) {
+		_songs = await loadData();
+		songs.set(_songs);
+	}
+	DEBUG && console.log("songs:", _songs);
+	updateStores(_songs);
 }

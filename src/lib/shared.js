@@ -1,4 +1,5 @@
 import localforage from "localforage";
+import { quintInOut } from "svelte/easing";
 import { writable } from "svelte/store";
 
 export const self = new Promise((res) => {
@@ -81,9 +82,25 @@ export const history = writableLF("history", {
 
 export const ArtistImageInstance = localforage.createInstance({ name: "artistimages" });
 export const AlbumImageInstance = localforage.createInstance({ name: "albumimages" });
-export const MusicInstance = localforage.createInstance({ name: "formusicfiles" });
 
-export const songs = writableLF("songs", [], false, MusicInstance);
+export const songs = writableLF("songs", []);
 export const albums = writable([]);
 export const genres = writable([]);
 export const artists = writable([]);
+
+import sn from "./spatial_navigation";
+sn.init();
+export { sn };
+
+export function fadeScale(node, { delay = 0, duration = 250, easing = quintInOut, baseScale = 0.9 }) {
+	const is = 1 - baseScale;
+
+	return {
+		delay,
+		duration,
+		css: (t) => {
+			const eased = easing(t);
+			return `opacity: ${eased}; transform: scale(${eased * 1 * is + baseScale})`;
+		},
+	};
+}

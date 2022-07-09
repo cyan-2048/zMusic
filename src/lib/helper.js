@@ -52,3 +52,15 @@ export function cleanObject(obj) {
 	}
 	return clone;
 }
+
+export function delay(ms = 1000) {
+	return new Promise((res) => setTimeout(res, ms));
+}
+
+export function promiseState(p) {
+	const t = {};
+	return Promise.race([p, t]).then(
+		(v) => (v === t ? false : true),
+		() => true
+	);
+}

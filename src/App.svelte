@@ -1,24 +1,38 @@
 <script>
-	export let name = "cyan";
-	import { settings, songs } from "./lib/shared";
+	import { settings } from "./lib/shared";
 	import { init } from "./lib/database";
 	import { onMount } from "svelte";
-	import resizeImage from "./lib/ImageResizer";
 
-	window.changeSettings = (e) => ($settings = { ...$settings, ...e });
-	window.resizeImage = resizeImage;
+	import Router, { location } from "svelte-spa-router";
+	import Home from "./routes/Home.svelte";
+	import Music from "./routes/Music.svelte";
+	import Album from "./routes/Album.svelte";
+	import Genre from "./routes/Genre.svelte";
 
-	let songs_len = null;
+	window.addEventListener("keydown", (e) => {
+		if ($location !== "/") return;
+		const { target, key } = e;
+		if (key === "Backspace" && (!("value" in target) || target.value === "")) e.preventDefault();
+	});
 
+	if (DEBUG) {
+		window.changeSettings = (e) => ($settings = { ...$settings, ...e });
+	}
+
+	let ready = false;
 	onMount(async () => {
 		await init();
-		songs_len = $songs.length;
+		ready = true;
 	});
+
+	const routes = {
+		"/": Home,
+		"/music/:page?": Music,
+		"/music/albums/:hash": Album,
+		"/music/genres/:hash": Genre,
+	};
 </script>
 
-<main>
-	<h1>Hello {name}!</h1>
-	<p>{JSON.stringify($settings, null, 2)}</p>
-	<p>{songs_len}</p>
-	<p>Visit the <a href="https://svelte.dev/tutorial">Svelte tutorial</a> to learn how to build Svelte apps.</p>
-</main>
+{#if ready}
+	<Router {routes} />
+{/if}

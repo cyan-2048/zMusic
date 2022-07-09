@@ -31,6 +31,8 @@ async function run(blob) {
 	}
 }
 
-export default async function resizeImage(blob) {
+async function resizeImage(blob) {
 	return (pending = run(blob));
 }
+
+export default resizeImage;

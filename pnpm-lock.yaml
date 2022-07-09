@@ -24,11 +24,13 @@ specifiers:
   rollup-plugin-terser: ^7.0.0
   scroll-into-view: ^1.16.0
   svelte: ^3.44.0
+  svelte-spa-router: ^3.2.0
   vite: ^2.9.9
 
 dependencies:
   localforage: 1.10.0
   scroll-into-view: 1.16.2
+  svelte-spa-router: 3.2.0
 
 devDependencies:
   '@babel/core': 7.17.10
@@ -2330,6 +2332,11 @@ packages:
       '@babel/runtime': 7.17.9
     dev: true
 
+  /regexparam/2.0.0:
+    resolution: {integrity: sha512-gJKwd2MVPWHAIFLsaYDZfyKzHNS4o7E/v8YmNf44vmeV2e4YfVoDToTOKTvE7ab68cRJ++kLuEXJBaEeJVt5ow==}
+    engines: {node: '>=8'}
+    dev: false
+
   /regexpu-core/5.0.1:
     resolution: {integrity: sha512-CriEZlrKK9VJw/xQGJpQM5rY88BtuL8DM+AEwvcThHilbxiTAy8vq4iJnd2tqq8wLmjbGZzP7ZcKFjbGkmEFrw==}
     engines: {node: '>=4'}
@@ -2539,6 +2546,12 @@ packages:
     dependencies:
       svelte: 3.48.0
     dev: true
+
+  /svelte-spa-router/3.2.0:
+    resolution: {integrity: sha512-igemo5Vs82TGBBw+DjWt6qKameXYzNs6aDXcTxou5XbEvOjiRcAM6MLkdVRCatn6u8r42dE99bt/br7T4qe/AQ==}
+    dependencies:
+      regexparam: 2.0.0
+    dev: false
 
   /svelte/3.48.0:
     resolution: {integrity: sha512-fN2YRm/bGumvjUpu6yI3BpvZnpIm9I6A7HR4oUNYd7ggYyIwSA/BX7DJ+UXXffLp6XNcUijyLvttbPVCYa/3xQ==}
