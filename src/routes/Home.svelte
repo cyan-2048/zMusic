@@ -1,5 +1,5 @@
 <script>
-	import { fadeScale, settings, songs } from "../lib/shared";
+	import { fadeScaleIn, fadeScaleOut, settings, songs } from "../lib/shared";
 	import { onMount } from "svelte";
 	import { link } from "svelte-spa-router";
 	import { fade } from "svelte/transition";
@@ -11,7 +11,7 @@
 	let state = 0;
 </script>
 
-<main transition:fadeScale>
+<main in:fadeScaleIn out:fadeScaleOut>
 	<a href="/music" use:link>Music</a>
 	<main>
 		<h1>Hello!</h1>

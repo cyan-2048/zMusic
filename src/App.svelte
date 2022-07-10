@@ -8,6 +8,7 @@
 	import Music from "./routes/Music.svelte";
 	import Album from "./routes/Album.svelte";
 	import Genre from "./routes/Genre.svelte";
+	import localforage from "localforage";
 
 	window.addEventListener("keydown", (e) => {
 		if ($location !== "/") return;
@@ -21,6 +22,7 @@
 
 	let ready = false;
 	onMount(async () => {
+		await localforage.ready();
 		await init();
 		ready = true;
 	});
@@ -35,4 +37,6 @@
 
 {#if ready}
 	<Router {routes} />
+{:else}
+	<main>Loading...</main>
 {/if}

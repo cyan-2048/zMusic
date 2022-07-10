@@ -21,9 +21,10 @@ function alphabeticalSort(a, b) {
 	return a[toCompare].localeCompare(b[toCompare]);
 }
 
-async function loadMusic(storage, $settings) {
+async function loadMusic(storage, $settings, songs) {
 	const nomedia = [];
 	const array = [];
+
 	if (!PRODUCTION) return my_music;
 	return new Promise((res) => {
 		const cursor = storage.enumerate();
@@ -32,7 +33,11 @@ async function loadMusic(storage, $settings) {
 				return res($settings.nomedia ? array.filter((a) => !nomedia.find((e) => a.filename.startsWith(e))) : array);
 			}
 			const filename = cursor.result.name;
-			if ($settings.nomedia && filename.endsWith(".nomedia")) nomedia.push(filename.slice(0, -8));
+
+			const isAlreadyThere = songs && songs instanceof Array && songs.find((a) => a.filename === filename);
+			if (isAlreadyThere) {
+				array.push(isAlreadyThere);
+			} else if ($settings.nomedia && filename.endsWith(".nomedia")) nomedia.push(filename.slice(0, -8));
 			else if (filename.endsWith(".mp3") && (!$settings.nomedia || !nomedia.find((e) => filename.startsWith(e)))) {
 				try {
 					const { picture, rated, played, ...obj } = await parseAudio(cursor.result);
@@ -60,10 +65,22 @@ async function loadData() {
 	DEBUG && console.log("loadData start");
 	const start = new Date();
 	const $settings = get(settings);
-	const storages = navigator.mozApps ? navigator.getDeviceStorages($settings.nomedia ? "sdcard" : "music") : [{}];
+	const storages = PRODUCTION ? navigator.getDeviceStorages($settings.nomedia ? "sdcard" : "music") : [{}];
 	const array = (await Promise.all(storages.map((storage) => loadMusic(storage, $settings)))).flat();
 	array.sort(alphabeticalSort);
 	DEBUG && console.log("loadData: " + (new Date() - start) / 1000 + "s");
+	return array;
+}
+
+async function compareData(songs) {
+	await settings.init;
+	const start = new Date();
+	DEBUG && console.log("comparing data");
+	const $settings = get(settings);
+	const storages = PRODUCTION ? navigator.getDeviceStorages($settings.nomedia ? "sdcard" : "music") : [{}];
+	const array = (await Promise.all(storages.map((a) => loadMusic(a, $settings, songs)))).flat();
+	array.sort(alphabeticalSort);
+	DEBUG && console.log("compare data: " + (new Date() - start) / 1000 + "s");
 	return array;
 }
 
@@ -183,10 +200,9 @@ export async function init(cb) {
 	await songs.init;
 
 	let _songs = get(songs);
-	if (_songs.length === 0) {
-		_songs = await loadData();
-		songs.set(_songs);
-	}
+	_songs = await (_songs.length === 0 ? loadData(_songs) : compareData(_songs));
+	songs.set(_songs);
+
 	DEBUG && console.log("songs:", _songs);
 	updateStores(_songs);
 }

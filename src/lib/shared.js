@@ -1,6 +1,6 @@
 import localforage from "localforage";
 import { quintInOut } from "svelte/easing";
-import { writable } from "svelte/store";
+import { readable, writable } from "svelte/store";
 
 export const self = new Promise((res) => {
 	const { mozApps } = navigator;
@@ -92,15 +92,27 @@ import sn from "./spatial_navigation";
 sn.init();
 export { sn };
 
-export function fadeScale(node, { delay = 0, duration = 250, easing = quintInOut, baseScale = 0.9 }) {
-	const is = 1 - baseScale;
-
+export function fadeScaleIn(node, { delay = 0, duration = 250, easing = quintInOut, baseScale = 0.9 }) {
 	return {
 		delay,
 		duration,
-		css: (t) => {
-			const eased = easing(t);
-			return `opacity: ${eased}; transform: scale(${eased * 1 * is + baseScale})`;
+		css: (t, u) => {
+			return `opacity: ${easing(t)}; transform: scale(${0.9 + easing(t) / 10})`;
 		},
 	};
+}
+
+export function fadeScaleOut(node, { delay = 0, duration = 250, easing = quintInOut }) {
+	return {
+		delay,
+		duration,
+		css: (t, u) => {
+			return `opacity: ${easing(t)}; transform: scale(1.${easing(u)})`;
+		},
+	};
+}
+
+export function focusable(node) {
+	node.setAttribute("data-focusable", "");
+	node.tabIndex = "0";
 }

@@ -13,6 +13,12 @@ const quick = process.env.quick === "true";
 const kaios3 = process.env.kaios === "3";
 const test = process.env.test === "true";
 
+if (quick && !test && process.env.ROLLUP_WATCH) {
+	setTimeout(() => {
+		console.log("HI! I think you're retard Cyan, you probably forgot you created a 'test' script thing...");
+	}, 3000);
+}
+
 export default {
 	input: "src/main.js",
 	output: {
