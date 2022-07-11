@@ -101,7 +101,7 @@ body > * {
 */
 
 [data-focusable] {
-	border: solid 2px;
+	border: solid 4px;
 	border-color: transparent;
 }
 

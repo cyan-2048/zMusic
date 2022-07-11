@@ -5,6 +5,7 @@
 	import { onMount, tick } from "svelte";
 	import { music as page, music_lastFocused as lastFocused } from "./stores.js";
 	import { albums, artists, fadeScaleIn, focusable, genres, sn, songs } from "../lib/shared";
+	import ListItem from "../components/ListItem.svelte";
 
 	const tabs = ["artists", "albums", "songs", "genres", "playlists"];
 
@@ -76,7 +77,7 @@
 		<!-- artists -->
 		<div>
 			{#each [...$artists.values()] as item, i (item.name)}
-				<div data-focusable tabindex={i}>{item.name ?? "Unknown Artist"}</div>
+				<ListItem tabindex={i}><span>{item.name ?? "Unknown Artist"}</span></ListItem>
 			{/each}
 		</div>
 	{:else if $page === 1}
@@ -89,17 +90,22 @@
 	{:else if $page === 2}
 		<!-- songs -->
 		<div>
-			{#each [...$songs.values()] as item, i (item.hash)}
-				<div data-focusable tabindex={i}>{item.title}</div>
+			{#each [...$songs.values()] as { hash, title, artist }, i (hash)}
+				<ListItem tabindex={i}>
+					<span>
+						{title}
+					</span>
+					<span>
+						{artist}
+					</span>
+				</ListItem>
 			{/each}
 		</div>
 	{:else if $page === 3}
 		<!-- genres -->
 		<div>
 			{#each [...$genres.values()] as { name }, i (name)}
-				<div data-focusable on:click={() => push("/genres/" + name)} tabindex={i}>
-					{name}
-				</div>
+				<ListItem tabindex={i}><span>{name}</span></ListItem>
 			{/each}
 		</div>
 	{:else if $page === 4}
