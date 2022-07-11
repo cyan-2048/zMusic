@@ -1,6 +1,7 @@
 import localforage from "localforage";
 import { quintInOut } from "svelte/easing";
-import { readable, writable } from "svelte/store";
+import { get, readable, writable } from "svelte/store";
+import { mountDirection } from "../routes/stores";
 
 export const self = new Promise((res) => {
 	const { mozApps } = navigator;
@@ -83,34 +84,53 @@ export const history = writableLF("history", {
 export const ArtistImageInstance = localforage.createInstance({ name: "artistimages" });
 export const AlbumImageInstance = localforage.createInstance({ name: "albumimages" });
 
-export const songs = writableLF("songs", []);
+export const songs = writableLF("songs", new Map());
 export const albums = writable([]);
 export const genres = writable([]);
 export const artists = writable([]);
 
 import sn from "./spatial_navigation";
 sn.init();
+sn.add({
+	id: "default",
+	selector: "[data-focusable]",
+	defaultElement: "[data-lastfocused]",
+});
+
 export { sn };
 
-export function fadeScaleIn(node, { delay = 0, duration = 250, easing = quintInOut, baseScale = 0.9 }) {
+/**
+ * @param {Element} node /// ugggg why am i not using typescript
+ */
+export function fadeScaleIn(node) {
+	let addedClass = null;
 	return {
-		delay,
-		duration,
-		css: (t, u) => {
-			return `opacity: ${easing(t)}; transform: scale(${0.9 + easing(t) / 10})`;
+		delay: 0,
+		duration: 250,
+		tick: (t, u) => {
+			if (addedClass === null) {
+				addedClass = get(mountDirection) === 0 ? "backIn" : "forwardIn";
+				node.classList.add(addedClass);
+			}
 		},
 	};
 }
 
-export function fadeScaleOut(node, { delay = 0, duration = 250, easing = quintInOut }) {
+/*
+export function fadeScaleOut(node) {
+	let addedClass = null;
 	return {
-		delay,
-		duration,
-		css: (t, u) => {
-			return `opacity: ${easing(t)}; transform: scale(1.${easing(u)})`;
+		delay: 0,
+		duration: 250,
+		tick: (t, u) => {
+			if (addedClass === null) {
+				addedClass = get(mountDirection) === 0 ? "backOut" : "forwardOut";
+				node.classList.add(addedClass);
+			}
 		},
 	};
 }
+*/
 
 export function focusable(node) {
 	node.setAttribute("data-focusable", "");

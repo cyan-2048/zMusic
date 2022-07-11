@@ -17,9 +17,9 @@ async function func(blob) {
 		img.onerror = err;
 	});
 	ctx.drawImage(img, 0, 0, 320, 320);
-	URL.revokeObjectURL(url);
+	!typeof blob === "string" && URL.revokeObjectURL(url);
 	const _blob = await new Promise((res) => canvas.toBlob(res, "image/jpg", 0.75));
-	DEBUG && console.log("image resize:", new Date() - start + "ms");
+	DEBUG && console.info("image resize:", new Date() - start + "ms");
 	return _blob;
 }
 

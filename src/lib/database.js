@@ -68,20 +68,23 @@ async function loadData() {
 	const storages = PRODUCTION ? navigator.getDeviceStorages($settings.nomedia ? "sdcard" : "music") : [{}];
 	const array = (await Promise.all(storages.map((storage) => loadMusic(storage, $settings)))).flat();
 	array.sort(alphabeticalSort);
+	const newMap = new Map(array.map((a) => [a.hash, a]));
 	DEBUG && console.log("loadData: " + (new Date() - start) / 1000 + "s");
-	return array;
+	return newMap;
 }
 
-async function compareData(songs) {
+async function compareData(rawMap) {
 	await settings.init;
 	const start = new Date();
+	const songs = [...rawMap.values()];
 	DEBUG && console.log("comparing data");
 	const $settings = get(settings);
 	const storages = PRODUCTION ? navigator.getDeviceStorages($settings.nomedia ? "sdcard" : "music") : [{}];
 	const array = (await Promise.all(storages.map((a) => loadMusic(a, $settings, songs)))).flat();
 	array.sort(alphabeticalSort);
+	const newMap = new Map(array.map((a) => [a.hash, a]));
 	DEBUG && console.log("compare data: " + (new Date() - start) / 1000 + "s");
-	return array;
+	return newMap;
 }
 
 function isAlpha(string) {
@@ -124,7 +127,7 @@ function siftAlbums(songs) {
 	});
 
 	albums.sort(alphabeticalSort);
-	return albums;
+	return new Map(albums.map((a) => [a.hash, a]));
 }
 
 function siftGenres(songs) {
@@ -145,11 +148,11 @@ function siftGenres(songs) {
 
 	Object.entries(map).forEach(([name, songs]) => {
 		const albums = [...new Set(songs.map(hashAlbum))];
-		genres.push({ name, albums, cover: albums[0] || null });
+		genres.push({ name, albums, songs: songs.map((a) => a.hash), cover: albums[0] || null });
 	});
 
 	genres.sort(alphabeticalSort);
-	return genres;
+	return new Map(genres.map((a) => [a.name, a]));
 }
 
 function siftArtists(songs) {
@@ -179,7 +182,7 @@ function siftArtists(songs) {
 	});
 
 	artists.sort(alphabeticalSort);
-	return artists;
+	return new Map(artists.map((a) => [a.name, a]));
 }
 
 async function updateStores(_songs) {
@@ -200,9 +203,9 @@ export async function init(cb) {
 	await songs.init;
 
 	let _songs = get(songs);
-	_songs = await (_songs.length === 0 ? loadData(_songs) : compareData(_songs));
+	_songs = await (_songs.size === 0 ? loadData(_songs) : compareData(_songs));
 	songs.set(_songs);
 
 	DEBUG && console.log("songs:", _songs);
-	updateStores(_songs);
+	updateStores([..._songs.values()]);
 }

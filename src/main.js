@@ -21,8 +21,8 @@ if (!PRODUCTION) {
 		target.dispatchEvent(new KeyboardEvent(type, { key: "Soft" + key.slice(5), bubbles, cancelable, repeat }));
 	}
 
-	document.addEventListener("keyup", softkey);
-	document.addEventListener("keydown", softkey);
+	document.addEventListener("keyup", softkey, true);
+	document.addEventListener("keydown", softkey, true);
 }
 
 const app = new App({
