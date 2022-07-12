@@ -87,12 +87,6 @@ async function compareData(rawMap) {
 	return newMap;
 }
 
-function isAlpha(string) {
-	const first = String(string).charAt(0);
-	if (!isNaN(first)) return false;
-	return "0".localeCompare(first) < 0;
-}
-
 export function hashAlbum({ album, artist, year }) {
 	if (album === null) return null;
 	return hashCode("" + album + (artist ? artist.split(", ")[0] : null), +(year || ""));

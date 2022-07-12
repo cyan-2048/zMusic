@@ -77,7 +77,6 @@ export const history = writableLF("history", {
 	albums: [],
 	queue: [],
 	time: 0,
-	new: [],
 	index: 0,
 });
 
@@ -85,9 +84,13 @@ export const ArtistImageInstance = localforage.createInstance({ name: "artistima
 export const AlbumImageInstance = localforage.createInstance({ name: "albumimages" });
 
 export const songs = writableLF("songs", new Map());
-export const albums = writable([]);
-export const genres = writable([]);
-export const artists = writable([]);
+export const albums = writable(new Map());
+export const genres = writable(new Map());
+export const artists = writable(new Map());
+
+export const bio = writableLF("bio", new Map());
+export const review = writableLF("review", new Map());
+export const newAlbums = writable("newAlbums", new Map());
 
 import sn from "./spatial_navigation";
 sn.init();
@@ -135,4 +138,20 @@ export function fadeScaleOut(node) {
 export function focusable(node) {
 	node.setAttribute("data-focusable", "");
 	node.tabIndex = "0";
+}
+
+export function tabby(node, { direction = null, go = true }) {
+	let classAdded = null;
+	return {
+		delay: 0,
+		duration: direction ? 250 : 0,
+		tick(t) {
+			if (classAdded === null) {
+				if (direction !== null) {
+					classAdded = `tab${go ? "In" : "Out"}-${direction}`;
+					node.classList.add(classAdded);
+				}
+			}
+		},
+	};
 }

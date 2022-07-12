@@ -57,10 +57,21 @@ export function delay(ms = 1000) {
 	return new Promise((res) => setTimeout(res, ms));
 }
 
+/**
+ * Checks promise state returns true if it is done/not pending
+ * @param {Promise} p
+ * @returns Promise<boolean>
+ */
 export function promiseState(p) {
 	const t = {};
 	return Promise.race([p, t]).then(
 		(v) => (v === t ? false : true),
 		() => true
 	);
+}
+
+function isAlpha(string) {
+	const first = String(string).charAt(0);
+	if (!isNaN(first)) return false;
+	return "0".localeCompare(first) < 0;
 }

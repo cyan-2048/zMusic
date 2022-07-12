@@ -108,3 +108,58 @@ body > * {
 [data-focusable]:focus {
 	border-color: var(--accent, grey);
 }
+
+@keyframes tabIn-left {
+	from {
+		opacity: 0;
+		transform: translateX(-100vw);
+	} to {
+		opacity: 1;
+		transform: none;
+	}
+}
+@keyframes tabIn-right {
+	from {
+		opacity: 0;
+		transform: translateX(100vw);
+	} to {
+		opacity: 1;
+		transform: none;
+	}
+}
+
+@keyframes tabOut-left {
+	from {
+		opacity: 1;
+		transform: none;
+	} to {
+		opacity: 0;
+		transform: translateX(100vw);
+	}
+}
+
+@keyframes tabOut-right {
+	from {
+		opacity: 1;
+		transform: none;
+	} to {
+		opacity: 0;
+		transform: translateX(-100vw);
+	}
+}
+
+.tabIn-left {
+animation: tabIn-left 250ms ease;
+}
+
+.tabIn-right {
+	animation: tabIn-right 250ms ease;
+}
+
+.tabOut-left {
+	animation: tabOut-left 250ms ease;
+	}
+	
+	.tabOut-right {
+		animation: tabOut-right 250ms ease;
+	}
