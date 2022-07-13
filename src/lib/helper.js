@@ -8,6 +8,8 @@ export async function centerScroll(el, sync) {
 	});
 }
 
+export { scrollIntoView };
+
 export function hashCode(_str, seed = 0) {
 	const str = String(_str);
 	let h1 = 0xdeadbeef ^ seed,

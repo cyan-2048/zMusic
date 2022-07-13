@@ -22,7 +22,7 @@ if (quick && !test && process.env.ROLLUP_WATCH) {
 export default {
 	input: "src/main.js",
 	output: {
-		sourcemap: false,
+		sourcemap: test,
 		format: "iife",
 		file: `dist/build/bundle.js`,
 		intro: `const PRODUCTION = true; const DEBUG = ${test};`,
@@ -50,11 +50,27 @@ export default {
 			extensions: [".js", ".mjs", ".html", ".svelte"],
 			babelHelpers: "runtime",
 			exclude: ["node_modules/@babel/**", /\/core-js\//],
-			presets: [["@babel/preset-env", { targets: { firefox: kaios3 ? "84" : "48" }, useBuiltIns: "usage", corejs: 3 }]],
+			presets: [
+				[
+					"@babel/preset-env",
+					{
+						targets: { firefox: kaios3 ? "84" : "48" },
+						useBuiltIns: "usage",
+						corejs: 3,
+						exclude: ["@babel/plugin-transform-regenerator"],
+					},
+				],
+			],
 			plugins: [
 				"@babel/plugin-syntax-dynamic-import",
-				...(kaios3 ? [] : ["babel-plugin-transform-async-to-promises"]),
-				["@babel/plugin-transform-runtime", { useESModules: true }],
+				"babel-plugin-transform-async-to-promises",
+				[
+					"@babel/plugin-transform-runtime",
+					{
+						regenerator: false,
+						useESModules: true,
+					},
+				],
 			],
 		}),
 
@@ -67,6 +83,7 @@ export default {
 			browser: true,
 			dedupe: ["svelte"],
 		}),
+
 		!quick && terser(),
 	],
 };

@@ -12,6 +12,7 @@
 	import Genre from "./routes/Genre.svelte";
 	import localforage from "localforage";
 	import { mountDirection } from "./routes/stores";
+	import Settings from "./routes/Settings.svelte";
 
 	if (DEBUG) {
 		window.changeSettings = (e) => ($settings = { ...$settings, ...e });
@@ -33,6 +34,7 @@
 		"/music/": Music,
 		"/albums/:hash": Album,
 		"/genres/:hash": Genre,
+		"/settings/": Settings,
 	};
 </script>
 

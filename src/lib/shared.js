@@ -70,6 +70,7 @@ export const settings = writableLF(
 		timer: false,
 		timerAmount: 60,
 		// bio: true,
+		title: "music+video",
 	},
 	true
 );
