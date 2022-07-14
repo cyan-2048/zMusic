@@ -1,5 +1,6 @@
+import { delay } from "./helper";
+
 const canvas = document.createElement("canvas"),
-	img = new Image(),
 	ctx = canvas.getContext("2d");
 
 canvas.height = 320;
@@ -11,6 +12,7 @@ async function func(blob) {
 	const start = new Date();
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	const url = typeof blob === "string" ? blob : URL.createObjectURL(blob);
+	const img = new Image();
 	img.src = url;
 	await new Promise((res, err) => {
 		img.onload = res;
@@ -20,6 +22,7 @@ async function func(blob) {
 	!typeof blob === "string" && URL.revokeObjectURL(url);
 	const _blob = await new Promise((res) => canvas.toBlob(res, "image/jpg", 0.75));
 	DEBUG && console.info("image resize:", new Date() - start + "ms");
+	await delay(700);
 	return _blob;
 }
 
