@@ -1,5 +1,4 @@
 import localforage from "localforage";
-import { quintInOut } from "svelte/easing";
 import { get, readable, writable } from "svelte/store";
 import { mountDirection } from "../routes/stores";
 
@@ -11,9 +10,9 @@ export const self = new Promise((res) => {
 	};
 });
 
-export { fetch } from "./fetch";
+import fetch from "./fetch";
 
-if (!PRODUCTION) {
+if (DEBUG) {
 	window.localforage = localforage;
 	window._fetch = fetch;
 }
@@ -156,3 +155,14 @@ export function tabby(node, { direction = null, go = true }) {
 		},
 	};
 }
+
+export const uptime = readable(null, function start(set) {
+	set(Math.floor(performance.now() / 1000));
+	const interval = setInterval(() => {
+		set(Math.floor(performance.now() / 1000));
+	}, 1000);
+
+	return function stop() {
+		clearInterval(interval);
+	};
+});

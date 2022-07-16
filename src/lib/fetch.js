@@ -79,7 +79,7 @@ function iteratorFor(items) {
 	return iterator;
 }
 
-export function Headers(headers) {
+function Headers(headers) {
 	this.map = {};
 
 	if (headers instanceof Headers) {
@@ -334,7 +334,7 @@ function normalizeMethod(method) {
 	return methods.indexOf(upcased) > -1 ? upcased : method;
 }
 
-export function Request(input, options) {
+function Request(input, options) {
 	if (!(this instanceof Request)) {
 		throw new TypeError('Please use the "new" operator, this DOM object constructor cannot be called as a function.');
 	}
@@ -446,7 +446,7 @@ function parseHeaders(rawHeaders) {
 
 Body.call(Request.prototype);
 
-export function Response(bodyInit, options) {
+function Response(bodyInit, options) {
 	if (!(this instanceof Response)) {
 		throw new TypeError('Please use the "new" operator, this DOM object constructor cannot be called as a function.');
 	}
@@ -490,7 +490,8 @@ Response.redirect = function (url, status) {
 	return new Response(null, { status: status, headers: { location: url } });
 };
 
-export var DOMException = global.DOMException;
+var DOMException = global.DOMException;
+
 try {
 	new DOMException();
 } catch (err) {
@@ -504,7 +505,7 @@ try {
 	DOMException.prototype.constructor = DOMException;
 }
 
-export function fetch(input, init) {
+function fetch(input, init) {
 	return new Promise(function (resolve, reject) {
 		var request = new Request(input, init);
 
@@ -603,3 +604,5 @@ export function fetch(input, init) {
 }
 
 fetch.polyfill = true;
+
+export { fetch as default, DOMException, Response, Request };

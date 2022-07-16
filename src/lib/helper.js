@@ -72,7 +72,7 @@ export function promiseState(p) {
 	);
 }
 
-function isAlpha(string) {
+export function isAlpha(string) {
 	const first = String(string).charAt(0);
 	if (!isNaN(first)) return false;
 	return "0".localeCompare(first) < 0;

@@ -1,7 +1,7 @@
 <script>
 	import { pop } from "svelte-spa-router";
 
-	import { fadeScaleIn, settings } from "../lib/shared";
+	import { fadeScaleIn, settings, uptime } from "../lib/shared";
 
 	let busy = false;
 </script>
@@ -21,4 +21,5 @@
 	<h1>Hello!</h1>
 	<p>{JSON.stringify($settings, null, 2)}</p>
 	<p>Visit the <a href="https://svelte.dev/tutorial">Svelte tutorial</a> to learn how to build Svelte apps.</p>
+	<p>Uptime: {$uptime}</p>
 </main>
