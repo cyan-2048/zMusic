@@ -4,6 +4,7 @@
 	import { link } from "svelte-spa-router";
 	import scrollIntoView from "scroll-into-view";
 	import { children } from "svelte/internal";
+	import { quintInOut } from "svelte/easing";
 
 	let state = 0,
 		title = null,
@@ -63,7 +64,7 @@
 							top: 0,
 						},
 						isScrollable: () => true,
-						easing: (e) => e,
+						easing: quintInOut,
 					},
 					res
 				)
@@ -121,7 +122,7 @@
 		flex-grow: 0;
 		flex-shrink: 0;
 		padding: 10px;
-		padding-top: 86px;
+		padding-top: 62px;
 	}
 	.another_wrap_bruh {
 		width: 100vw;

@@ -6,6 +6,8 @@
 	import { music as page, music_lastFocused as lastFocused } from "./stores.js";
 	import { albums, artists, fadeScaleIn, focusable, genres, sn, songs, tabby } from "../lib/shared";
 	import ListItem from "../components/ListItem.svelte";
+	import { hashAlbum } from "../lib/database";
+	import AlbumItem from "../components/AlbumItem.svelte";
 
 	const tabs = ["artists", "albums", "songs", "genres", "playlists"];
 
@@ -82,22 +84,22 @@
 		{#if $page === 0}
 			<!-- artists -->
 			<div on:introstart={focusLastFocused} out:tabby|local={{ direction, go: false }} in:tabby={{ direction }}>
-				{#each [...$artists.values()] as item, i (item.name)}
-					<ListItem tabindex={i}><span>{item.name ?? "Unknown Artist"}</span></ListItem>
+				{#each [...$artists.values()] as { name, cover }, i (name)}
+					<ListItem {cover} tabindex={i}><span>{name ?? "Unknown Artist"}</span></ListItem>
 				{/each}
 			</div>
 		{:else if $page === 1}
 			<!-- albums -->
 			<div on:introstart={focusLastFocused} out:tabby|local={{ direction, go: false }} in:tabby={{ direction }}>
-				{#each [...$albums.values()] as { hash, name }, i (hash)}
-					<div data-focusable on:click={() => push("/albums/" + hash)} tabindex={i}>{name ?? "Unknown Album"}</div>
+				{#each [...$albums] as [hash], i (hash)}
+					<AlbumItem {hash} on:click={() => push("/albums/" + hash)} tabindex={i} />
 				{/each}
 			</div>
 		{:else if $page === 2}
 			<!-- songs -->
 			<div on:introstart={focusLastFocused} out:tabby|local={{ direction, go: false }} in:tabby={{ direction }}>
-				{#each [...$songs.values()] as { hash, title, artist }, i (hash)}
-					<ListItem tabindex={i}>
+				{#each [...$songs.values()] as { hash, title, artist, ...obj }, i (hash)}
+					<ListItem cover={hashAlbum({ ...obj, artist })} tabindex={i}>
 						<span>
 							{title}
 						</span>
@@ -110,8 +112,8 @@
 		{:else if $page === 3}
 			<!-- genres -->
 			<div on:introstart={focusLastFocused} out:tabby|local={{ direction, go: false }} in:tabby={{ direction }}>
-				{#each [...$genres.values()] as { name }, i (name)}
-					<ListItem tabindex={i}><span>{name}</span></ListItem>
+				{#each [...$genres.values()] as { name, cover }, i (name)}
+					<ListItem {cover} tabindex={i}><span>{name}</span></ListItem>
 				{/each}
 			</div>
 		{:else if $page === 4}

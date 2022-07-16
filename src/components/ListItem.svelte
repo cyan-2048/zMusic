@@ -1,5 +1,6 @@
 <script>
 	import { onMount } from "svelte";
+	import AlbumImage from "./AlbumImage.svelte";
 
 	export let tabindex,
 		cover = null;
@@ -14,7 +15,7 @@
 </script>
 
 <main data-focusable {tabindex}>
-	<img {src} />
+	<AlbumImage size="38" {cover} />
 	<div>
 		<slot />
 	</div>
@@ -26,12 +27,7 @@
 		height: 48px;
 		padding: 1px;
 	}
-	img {
-		width: 38px;
-		height: 38px;
-		object-fit: contain;
-		object-position: center;
-	}
+
 	div {
 		flex: 2;
 		display: flex;

@@ -10,44 +10,6 @@ function hashAudio({ title, artist, album, filename }) {
 	return hashCode("" + title + artist + album + filename);
 }
 
-/**
- * @param {DeviceStorage} storage
- */
-export function storageIterator(storage) {
-	return {
-		[Symbol.asyncIterator]() {
-			let init = true;
-			const cursor = storage.enumerate();
-			return {
-				async next() {
-					await new Promise((res, rej) => {
-						cursor.onsuccess = res;
-						cursor.onerror = rej;
-					});
-					console.log(cursor.result)
-					if (init) {
-						init = false;
-					} else {
-						cursor.continue();
-					}
-					return { value: cursor.result, done: cursor.result === undefined };
-				},
-				return() {
-					// This will be reached if the consumer called 'break' or 'return' early in the loop.
-					return { done: true };
-				},
-			};
-		},
-	};
-}
-
-export async function test(storage) {
-	const iterator = storageIterator(storage);
-	for await (const a of iterator) {
-		console.log(a);
-	}
-}
-
 function createMusicObject(obj) {
 	return { ...obj, hash: hashAudio(obj) };
 }
